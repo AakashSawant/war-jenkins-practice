@@ -11,7 +11,7 @@ node {
   }
   
   stage('deploy') {
-    bat "copy target\\*.war  \"${tomcatWebApp}\\ROOT.war"" 
+    bat "copy target\\*.war  \"${tomcatWebApp}\\ROOT.war\"" 
   }
   
   stage('Start deployement') {
