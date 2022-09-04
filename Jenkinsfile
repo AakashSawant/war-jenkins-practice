@@ -7,7 +7,7 @@ node {
   }
   stage('compile') {
       def mvnHome = tool name: 'Maven', type:'maven'
-      bat "${mvnHome}/bin/mvn clean package" 
+      bat "${mvnHome}/bin/mvn clean install" 
   }
   
   stage('deploy') {
