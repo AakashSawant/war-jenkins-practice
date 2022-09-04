@@ -3,7 +3,7 @@ node {
   def tomcatBin = 'C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\bin';
   def tomcatStatus = '';
   stage('SCM Checkout') {
-      git 'https://github.com/AakashSawant/war-jenkins-practice.git'    
+      git branch: 'main', credentialsId: 'Github', url: 'https://github.com/AakashSawant/war-jenkins-practice.git'
   }
   stage('compile') {
       def mvnHome = tool name: 'Maven', type:'maven'
