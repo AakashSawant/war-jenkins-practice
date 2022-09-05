@@ -1,24 +1,21 @@
-node {
-  def tomcatWebApp = 'C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\webapps';
-  def tomcatBin = 'C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\bin';
-  def tomcatStatus = '';
-  stage('SCM Checkout') {
-      git branch: 'main', credentialsId: 'Github', url: 'https://github.com/AakashSawant/war-jenkins-practice.git'
+pipeline {
+  agent any
+  tools {
+    maven 'maven-3.6.3'
+    jdk "jdk1.8.0_101"
   }
-  stage('compile') {
-      def mvnHome = tool name: 'Maven', type:'maven'
-      bat "${mvnHome}/bin/mvn clean install" 
+  stages {
+    stage ('Build') {
+      steps {
+        sh 'mvn clean package'
+      }
+    }
+    stage ('Deploy') {
+      steps {
+        script {
+          deploy adapters: [tomcat9(credentialsId: 'Tomcat', path: '', url: 'http://localhost:8081')], contextPath: null, war: '**/*.war'
+        }
+      }
+    }
   }
-  
-  stage('deploy') {
-    bat "copy target\\*.war  \"${tomcatWebApp}\\ROOT.war\"" 
-  }
-  
-  stage('Start deployement') {
-    sleep(time:5,unit: "SECONDS")
-    bat "${tomcatBin}\\startup.bat"
-    sleep(time:5,unit:"SECONDS")
-    
-  }
-
 }
