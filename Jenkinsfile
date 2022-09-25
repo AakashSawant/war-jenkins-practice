@@ -1,29 +1,35 @@
-pipeline {
-  agent any
-  tools {
-    maven 'Maven'
-    jdk "JDK-8"
-  }
-  stages {
-    
-    stage ('clone from Git') {
-      steps {
-        git branch: 'main', credentialsId: 'Github', url: 'https://github.com/AakashSawant/war-jenkins-practice.git'
+node{
+
+   def tomcatWeb = 'C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\webapps'
+   def tomcatBin = 'C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\bin'
+   def tomcatStatus = ''
+   stage('SCM Checkout'){
+     git 'https://github.com/AakashSawant/war-jenkins-practice.git'
+   }
+   stage('Compile-Package-create-war-file'){
+      // Get maven home path
+      def mvnHome =  tool name: 'maven-3', type: 'maven'   
+      bat "${mvnHome}/bin/mvn package"
       }
-    }
-    
-    stage ('Build') {
-      steps {
-        sh 'mvn clean package'
-        git branch: 'main', credentialsId: 'Github', url: 'https://github.com/AakashSawant/war-jenkins-practice.git'
-      }
-    }
-    stage ('Deploy') {
-      steps {
-        script {
-          deploy adapters: [tomcat9(credentialsId: 'Tomcat', path: '', url: 'http://localhost:8081')], contextPath: null, war: '**/*.war'
-        }
-      }
-    }
-  }
+/*   stage ('Stop Tomcat Server') {
+               bat ''' @ECHO OFF
+               wmic process list brief | find /i "tomcat" > NUL
+               IF ERRORLEVEL 1 (
+                    echo  Stopped
+               ) ELSE (
+               echo running
+                  "${tomcatBin}\\shutdown.bat"
+                  sleep(time:10,unit:"SECONDS") 
+               )
+'''
+   }*/
+   stage('Deploy to Tomcat'){
+     bat "${tomcatBin}\\shutdown.bat"
+     bat "copy target\\JenkinsWar.war \"${tomcatWeb}\\JenkinsWar.war\""
+   }
+      stage ('Start Tomcat Server') {
+         sleep(time:5,unit:"SECONDS") 
+         bat "${tomcatBin}\\startup.bat"
+         sleep(time:100,unit:"SECONDS")
+   }
 }
